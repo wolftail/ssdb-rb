@@ -65,6 +65,7 @@ class SSDB
     end
   end
 
+
   # Evaluates scripts
   #
   # @param [String] script
@@ -98,6 +99,35 @@ class SSDB
     end
   end
 
+  def getset(key, value)
+    mon_synchronize do
+      perform ["getset", key, value]
+    end
+  end
+
+  def getbit(key, offset)
+    mon_synchronize do
+      perform ["getbit", key, offset], proc: T_INT
+    end
+  end
+
+  def setbit(key, offset, value)
+    mon_synchronize do
+      perform ['setbit', key, offset, value]
+    end
+  end
+
+  def bitcount(key, start = 0, size = nil)
+    mon_synchronize do
+      if size.nil?
+        perform ["countbit", key, start], proc: T_INT
+      else
+        perform ["countbit", key, start, size], proc: T_INT
+      end
+    end
+  end
+
+
   # Sets `value` at `key`.
   #
   # @param [String] key the key
@@ -110,6 +140,32 @@ class SSDB
       perform ["set", key, value], proc: T_BOOL
     end
   end
+
+  def setex(key, ttl, value)
+    mon_synchronize do
+      perform ['setx', key, value, ttl], proc: T_BOOL
+    end
+  end
+
+  def setnx(key, value)
+    mon_synchronize do
+      perform ['setnx', key, value], proc: T_BOOL
+    end
+  end
+
+
+  def expire(key, ttl)
+    mon_synchronize do
+      perform ["expire", key, ttl], proc: T_BOOL
+    end
+  end
+
+  def ttl(key)
+    mon_synchronize do
+      perform ["ttl", key], proc: T_INT
+    end
+  end
+
 
   # Increments a `key` by value
   #
@@ -149,6 +205,7 @@ class SSDB
       perform ["exists", key], proc: T_BOOL
     end
   end
+
   alias_method :exists?, :exists
 
   # Delete `key`.
@@ -287,6 +344,7 @@ class SSDB
       perform ["multi_exists", *keys], multi: true, proc: T_VBOOL
     end
   end
+
   alias_method :multi_exists?, :multi_exists
 
   # Returns the score of `member` at `key`.
@@ -299,6 +357,12 @@ class SSDB
   #   ssdb.zget("visits", "u1")
   #   # => 101
   def zget(key, member)
+    mon_synchronize do
+      perform ["zget", key, member], proc: T_CINT
+    end
+  end
+
+  def zscore(key, member)
     mon_synchronize do
       perform ["zget", key, member], proc: T_CINT
     end
@@ -318,6 +382,7 @@ class SSDB
       perform ["zset", key, member, score], proc: T_BOOL
     end
   end
+
 
   # Redis 'compatibility'.
   #
@@ -379,6 +444,7 @@ class SSDB
       perform ["zexists", key], proc: T_BOOL
     end
   end
+
   alias_method :zexists?, :zexists
 
   # Returns the cardinality of a set `key`.
@@ -388,6 +454,13 @@ class SSDB
   # @example
   #   ssdb.zsize("visits")
   #   # => 2
+
+  def zcard(key)
+    mon_synchronize do
+      perform ["zsize", key], proc: T_INT
+    end
+  end
+
   def zsize(key)
     mon_synchronize do
       perform ["zsize", key], proc: T_INT
@@ -408,6 +481,122 @@ class SSDB
     end
   end
 
+  # Delete All data from key
+  def clear(key)
+
+    mon_synchronize do
+      perform(["hclear", key], proc: T_INT) +
+          perform(["zclear", key], proc: T_INT) +
+          perform(["qclear", key], proc: T_INT) +
+          perform(["del", key], proc: T_INT)
+    end
+  end
+
+  def zclear(key)
+    mon_synchronize do
+      perform ["zclear", key], proc: T_INT
+    end
+  end
+
+  def zrange(key, start, stop, opts={})
+    mon_synchronize do
+      if opts[:withscores]
+        perform ["zrange", key, start, stop], multi: true, proc: T_STRINT
+      else
+        perform ["zrange", key, start, stop], multi: true, proc: T_ARRAY
+      end
+    end
+  end
+
+  def zrevrange(key, start, stop, opts={})
+    mon_synchronize do
+      if opts[:withscores]
+        perform ["zrrange", key, start, stop], multi: true, proc: T_STRINT
+      else
+        perform ["zrrange", key, start, stop], multi: true, proc: T_ARRAY
+      end
+    end
+  end
+
+  def qclear(key)
+    mon_synchronize do
+      perform ["qclear", key], proc: T_INT
+    end
+  end
+
+  def llen(key)
+    mon_synchronize do
+      perform ["qsize", key], proc: T_INT
+    end
+  end
+
+  def lpush(key, value)
+    mon_synchronize do
+      perform ["qpush_front", key, value]
+    end
+  end
+
+  def rpush(key, value)
+    mon_synchronize do
+      perform ["qpush_back", key, value]
+    end
+  end
+
+  def lpop(key)
+    mon_synchronize do
+      perform ["qpop_front", key]
+    end
+  end
+
+  def rpop(key)
+    mon_synchronize do
+      perform ["qpop_back", key]
+    end
+  end
+
+  def lrange(key, start, stop)
+
+    mon_synchronize do
+      perform ["qslice", key, start, stop], multi: true
+    end
+  end
+
+  def lindex(key, index)
+    mon_synchronize do
+      perform ["qget", key, index]
+    end
+  end
+
+  def lset key, index, value
+    mon_synchronize do
+      perform ["qset", key, index, value]
+    end
+  end
+
+  def qlist name_start, name_end, limit
+    mon_synchronize do
+      perform ["qlist", name_start, name_end, limit], proc: T_STRSTR
+    end
+  end
+
+  def hget(key, member)
+    mon_synchronize do
+      perform ["hget", key, member]
+    end
+  end
+
+  def hset(key, member, value)
+    mon_synchronize do
+      perform ["hset", key, member, value], proc: T_BOOL
+    end
+  end
+
+  def hgetall(key)
+    mon_synchronize do
+      perform ["hgetall", key], proc: T_HASHSTR
+    end
+  end
+
   # List zset keys between `start` and `stop`.
   #
   # @param [String] start start at this key
@@ -425,6 +614,20 @@ class SSDB
       perform ["zlist", start, stop, limit], multi: true
     end
   end
+
+  def zrlist(start, stop, opts = {})
+    limit = opts[:limit] || -1
+    mon_synchronize do
+      perform ["zrlist", start, stop, limit], multi: true
+    end
+  end
+
+  def zcount(key, min, max)
+    mon_synchronize do
+      perform ["zcount", key, min, max], proc: T_INT
+    end
+  end
+
 
   # Lists members at `key` starting at `start_member`
   # between `start` and `stop` scores.
@@ -466,6 +669,115 @@ class SSDB
     end
   end
 
+  def zrevrangebyscore key, max, min, opts={}
+  limit = opts[:limit] || [0, -1]
+
+  offset = limit[0]
+  count = limit[1]
+
+  per_page = count
+  if per_page <= 0
+    per_page = 1000
+  end
+
+  result = []
+  mon_synchronize do
+    score_start = max
+    key_start = ''
+    read_num = 0
+    loop do
+
+      page_result = perform ["zrscan", key, key_start, score_start, min, per_page], multi: true, proc: T_STRINT
+
+      if page_result.size == 0
+        break
+      end
+      key_start = page_result[-1][0]
+      score_start = page_result[-1][1]
+
+      read_num += page_result.size
+      if read_num < offset
+        next
+      end
+
+
+      page_result.each_with_index do |item, i|
+        next if read_num - page_result.size + i < offset
+        if opts[:withscores]
+          result << item
+        else
+          result << item[0]
+        end
+
+        if result.size > count && count > 0
+          break
+        end
+      end
+
+
+      if result.size >= count && count > 0
+        break
+      end
+    end
+  end
+  result[0, count]
+  end
+
+  def zrangebyscore(key, min, max, opts = {})
+
+    limit = opts[:limit] || [0, -1]
+
+    offset = limit[0]
+    count = limit[1]
+
+    per_page = count
+    if per_page <= 0
+      per_page = 1000
+    end
+
+    result = []
+    mon_synchronize do
+      score_start = min
+      key_start = ''
+      read_num = 0
+      loop do
+
+        page_result = perform ["zscan", key, key_start, score_start, max, per_page], multi: true, proc: T_STRINT
+
+        if page_result.size == 0
+          break
+        end
+        key_start = page_result[-1][0]
+        score_start = page_result[-1][1]
+
+        read_num += page_result.size
+        if read_num < offset
+          next
+        end
+
+
+        page_result.each_with_index do |item, i|
+          next if read_num - page_result.size + i < offset
+          if opts[:withscores]
+            result << item
+          else
+            result << item[0]
+          end
+
+          if result.size > count && count > 0
+            break
+          end
+        end
+
+
+        if result.size >= count && count > 0
+          break
+        end
+      end
+    end
+    result[0, count]
+  end
+
   # Reverse scans for members at `key` starting at `start_member`
   # between `start` and `stop` scores.
   #
@@ -500,6 +812,7 @@ class SSDB
       perform ["multi_zexists", *keys], multi: true, proc: T_VBOOL
     end
   end
+
   alias_method :multi_zexists?, :multi_zexists
 
   # Returns cardinalities of multiple sets
@@ -580,10 +893,10 @@ class SSDB
 
   private
 
-    def perform(chain, opts = {})
-      opts[:cmd] = chain.map(&:to_s)
-      client.call(opts)
-    end
+  def perform(chain, opts = {})
+    opts[:cmd] = chain.map(&:to_s)
+    client.call(opts)
+  end
 
 end
 

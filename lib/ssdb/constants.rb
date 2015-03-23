@@ -5,6 +5,7 @@ class SSDB
   T_VBOOL   = ->r { r.each_slice(2).map {|_, v| v == "1" }}
   T_VINT    = ->r { r.each_slice(2).map {|_, v| v.to_i }}
   T_STRSTR  = ->r { r.each_slice(2).to_a }
+  T_ARRAY  = ->r { r.each_slice(2).map {|v, s| v } }
   T_STRINT  = ->r { r.each_slice(2).map {|v, s| [v, s.to_i] } }
   T_MAPINT  = ->r,n { h = {}; r.each_slice(2) {|k, v| h[k] = v }; n.map {|k| h[k].to_i } }
   T_MAPSTR  = ->r,n { h = {}; r.each_slice(2) {|k, v| h[k] = v }; n.map {|k| h[k] } }

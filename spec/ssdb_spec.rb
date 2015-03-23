@@ -86,5 +86,7 @@ describe SSDB do
       )).should == ["1", "3", "6", "10", "15"]
     end
 
+
+
   end
 end

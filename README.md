@@ -39,7 +39,7 @@ ssdb = SSDB.new
 To connect to a custom server, please provide a custom `:url` option:
 
 ```ruby
-ssdb = SSDB.new url: "ssdb://1.2.3.4:8889"
+ssdb = SSDB.new host: '127.0.0.1', port:8888"
 ```
 
 To execute commands:

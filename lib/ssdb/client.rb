@@ -16,7 +16,10 @@ class SSDB
     def initialize(opts = {})
       @timeout   = opts[:timeout] || 10.0
       @sock      = nil
-      @url       = parse_url(opts[:url] || ENV["SSDB_URL"] || "ssdb://127.0.0.1:8888/")
+      #@url       = parse_url(opts[:url] || ENV["SSDB_URL"] || "ssdb://127.0.0.1:8888/")
+      #if opts[:host]
+        @url = parse_url("ssdb://#{opts[:host]||'127.0.0.1'}:#{opts[:port] || 8888}/")
+      #end
       @reconnect = opts[:reconnect] != false
     end
 
