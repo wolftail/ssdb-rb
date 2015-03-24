@@ -608,7 +608,7 @@ class SSDB
     members = Array(members) unless members.is_a?(Array)
     return {} if members.size  < 1
     mon_synchronize do
-      perform ["multi_hget", key, *members],  multi: true, proc: T_HASHSTR
+      perform ["multi_hget", key, *members],  multi: true
     end
   end
 
