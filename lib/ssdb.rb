@@ -630,6 +630,13 @@ class SSDB
     end
   end
 
+  def hlen(key)
+
+    mon_synchronize do
+      perform ["hsize", key], proc: T_INT
+    end
+  end
+
   def hset(key, member, value)
     mon_synchronize do
       perform ["hset", key, member, value], proc: T_BOOL
