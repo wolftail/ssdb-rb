@@ -637,6 +637,12 @@ class SSDB
     end
   end
 
+  def hexists(key, member)
+    mon_synchronize do
+      perform ["hexist", key,member], proc: T_BOOL
+    end
+  end
+
   def hset(key, member, value)
     mon_synchronize do
       perform ["hset", key, member, value], proc: T_BOOL
