@@ -592,6 +592,13 @@ class SSDB
     end
   end
 
+  def hmget(key, members)
+    members = Array(members) unless members.is_a?(Array)
+    mon_synchronize do
+      perform ["multi_hget", key, *members],  multi: true, proc: T_HASHSTR
+    end
+  end
+
   def hset(key, member, value)
     mon_synchronize do
       perform ["hset", key, member, value], proc: T_BOOL
