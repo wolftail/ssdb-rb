@@ -639,7 +639,7 @@ class SSDB
 
   def hexists(key, member)
     mon_synchronize do
-      perform ["hexist", key,member], proc: T_BOOL
+      perform ["hexists", key,member], proc: T_BOOL
     end
   end
 
