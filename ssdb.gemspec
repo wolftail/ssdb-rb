@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- spec/*`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_development_dependency("rspec")
-  s.add_development_dependency("rake")
-  s.add_development_dependency("bundler")
-  s.add_development_dependency("yard")
-  s.add_development_dependency("redcarpet")
+  s.add_development_dependency("rspec",  '~> 0')
+  s.add_development_dependency("rake", '~> 0')
+  s.add_development_dependency("bundler", '~> 0')
+  s.add_development_dependency("yard", '~> 0')
+  s.add_development_dependency("redcarpet", '~> 0')
 end

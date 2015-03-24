@@ -301,6 +301,13 @@ class SSDB
     end
   end
 
+  def mget(keys)
+    keys = Array(keys) unless keys.is_a?(Array)
+    mon_synchronize do
+      perform ["multi_get", *keys], multi: true, proc: T_MAPSTR, args: [keys]
+    end
+  end
+
   # Retrieves multiple keys
   #
   # @param [Array<String>] keys
