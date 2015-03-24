@@ -603,6 +603,11 @@ class SSDB
     end
   end
 
+  def hdel(key, member)
+    mon_synchronize do
+      perform ["hdel", key, member], proc: T_BOOL
+    end
+  end
   def hget(key, member)
     mon_synchronize do
       perform ["hget", key, member]
