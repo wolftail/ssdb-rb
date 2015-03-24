@@ -485,6 +485,12 @@ class SSDB
     end
   end
 
+  def zrem(key, member)
+    mon_synchronize do
+      perform ["zdel", key, member], proc: T_BOOL
+    end
+  end
+
   # Delete an `member` from a zset `key`.
   #
   # @param [String] key the key
