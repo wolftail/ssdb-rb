@@ -180,6 +180,12 @@ class SSDB
     end
   end
 
+  def incrby(key, value)
+    mon_synchronize do
+      perform ["incr", key, value], proc: T_INT
+    end
+  end
+
   # Decrements a `key` by value
   #
   # @param [String] key the key
@@ -188,6 +194,11 @@ class SSDB
   # @example
   #   ssdb.decr("foo") # => -1
   def decr(key, value = 1)
+    mon_synchronize do
+      perform ["decr", key, value], proc: T_INT
+    end
+  end
+  def decrby(key, value = 1)
     mon_synchronize do
       perform ["decr", key, value], proc: T_INT
     end
