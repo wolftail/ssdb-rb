@@ -786,6 +786,12 @@ class SSDB
   result[0, count]
   end
 
+  def zremrangebyscore(key, min, max)
+    mon_synchronize do
+      perform ["zremrangebyscore", key, min, max], proc: T_INT
+    end
+  end
+
   def zrangebyscore(key, min, max, opts = {})
 
     limit = opts[:limit] || [0, -1]
