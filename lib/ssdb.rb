@@ -607,8 +607,9 @@ class SSDB
   def hmget(key, members)
     members = Array(members) unless members.is_a?(Array)
     return {} if members.size  < 1
+    members.map!{|x| x.to_s}
     mon_synchronize do
-      perform ["multi_hget", key, *members],  multi: true
+      perform ["multi_hget", key, *members], multi: true, proc: T_MAPSTR, args: [members]
     end
   end
 
@@ -898,6 +899,7 @@ class SSDB
   #   # => {"u1" => 101, "u2" => 202}
   def mapped_multi_zget(key, members)
     members = Array(members) unless members.is_a?(Array)
+
     mon_synchronize do
       perform ["multi_zget", key, *members], multi: true, proc: T_HASHINT
     end
@@ -918,7 +920,6 @@ class SSDB
     end
   end
 
-  private
 
   def perform(chain, opts = {})
     opts[:cmd] = chain.map(&:to_s)
