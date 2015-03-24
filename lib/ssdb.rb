@@ -607,7 +607,7 @@ class SSDB
   def hmget(key, members)
     members = Array(members) unless members.is_a?(Array)
     return {} if members.size  < 1
-    members.map!{|x| x.to_s}
+    members = members.map{|x| x.to_s}
     mon_synchronize do
       perform ["multi_hget", key, *members], multi: true, proc: T_MAPSTR, args: [members]
     end
