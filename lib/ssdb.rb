@@ -198,6 +198,7 @@ class SSDB
       perform ["decr", key, value], proc: T_INT
     end
   end
+
   def decrby(key, value = 1)
     mon_synchronize do
       perform ["decr", key, value], proc: T_INT
@@ -523,21 +524,45 @@ class SSDB
   end
 
   def zrange(key, start, stop, opts={})
+    total = zcard(key)
+    if total < 1
+      return []
+    end
+    if start < 0
+      start = total + start
+    end
+    if stop < 0
+      stop = total + stop
+    end
+
+    limit = stop - start + 1
     mon_synchronize do
       if opts[:withscores]
-        perform ["zrange", key, start, stop], multi: true, proc: T_STRINT
+        perform ["zrange", key, start, limit], multi: true, proc: T_STRINT
       else
-        perform ["zrange", key, start, stop], multi: true, proc: T_ARRAY
+        perform ["zrange", key, start, limit], multi: true, proc: T_ARRAY
       end
     end
   end
 
   def zrevrange(key, start, stop, opts={})
+    total = zcard(key)
+    if total < 1
+      return []
+    end
+    if start < 0
+      start = total + start
+    end
+    if stop < 0
+      stop = total + stop
+    end
+
+    limit = stop - start + 1
     mon_synchronize do
       if opts[:withscores]
-        perform ["zrrange", key, start, stop], multi: true, proc: T_STRINT
+        perform ["zrrange", key, start, limit], multi: true, proc: T_STRINT
       else
-        perform ["zrrange", key, start, stop], multi: true, proc: T_ARRAY
+        perform ["zrrange", key, start, limit], multi: true, proc: T_ARRAY
       end
     end
   end
@@ -608,6 +633,7 @@ class SSDB
       perform ["hdel", key, member], proc: T_BOOL
     end
   end
+
   def hget(key, member)
     mon_synchronize do
       perform ["hget", key, member]
@@ -628,8 +654,8 @@ class SSDB
 
   def hmget(key, members)
     members = Array(members) unless members.is_a?(Array)
-    return {} if members.size  < 1
-    members = members.map{|x| x.to_s}
+    return {} if members.size < 1
+    members = members.map { |x| x.to_s }
     mon_synchronize do
       perform ["multi_hget", key, *members], multi: true, proc: T_MAPSTR, args: [members]
     end
@@ -644,7 +670,7 @@ class SSDB
 
   def hexists(key, member)
     mon_synchronize do
-      perform ["hexists", key,member], proc: T_BOOL
+      perform ["hexists", key, member], proc: T_BOOL
     end
   end
 
@@ -733,57 +759,57 @@ class SSDB
   end
 
   def zrevrangebyscore key, max, min, opts={}
-  limit = opts[:limit] || [0, -1]
+    limit = opts[:limit] || [0, -1]
 
-  offset = limit[0]
-  count = limit[1]
+    offset = limit[0]
+    count = limit[1]
 
-  per_page = count
-  if per_page <= 0
-    per_page = 1000
-  end
+    per_page = count
+    if per_page <= 0
+      per_page = 1000
+    end
 
-  result = []
-  mon_synchronize do
-    score_start = max
-    key_start = ''
-    read_num = 0
-    loop do
+    result = []
+    mon_synchronize do
+      score_start = max
+      key_start = ''
+      read_num = 0
+      loop do
 
-      page_result = perform ["zrscan", key, key_start, score_start, min, per_page], multi: true, proc: T_STRINT
+        page_result = perform ["zrscan", key, key_start, score_start, min, per_page], multi: true, proc: T_STRINT
 
-      if page_result.size == 0
-        break
-      end
-      key_start = page_result[-1][0]
-      score_start = page_result[-1][1]
+        if page_result.size == 0
+          break
+        end
+        key_start = page_result[-1][0]
+        score_start = page_result[-1][1]
 
-      read_num += page_result.size
-      if read_num < offset
-        next
-      end
-
-
-      page_result.each_with_index do |item, i|
-        next if read_num - page_result.size + i < offset
-        if opts[:withscores]
-          result << item
-        else
-          result << item[0]
+        read_num += page_result.size
+        if read_num < offset
+          next
         end
 
-        if result.size > count && count > 0
+
+        page_result.each_with_index do |item, i|
+          next if read_num - page_result.size + i < offset
+          if opts[:withscores]
+            result << item
+          else
+            result << item[0]
+          end
+
+          if result.size > count && count > 0
+            break
+          end
+        end
+
+
+        if result.size >= count && count > 0
           break
         end
       end
-
-
-      if result.size >= count && count > 0
-        break
-      end
     end
-  end
-  result[0, count]
+    result[0, count]
   end
 
   def zremrangebyscore(key, min, max)
