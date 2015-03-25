@@ -661,6 +661,12 @@ class SSDB
     end
   end
 
+  def hclear(key)
+    mon_synchronize do
+      perform ["hclear", key], proc: T_INT
+    end
+  end
+
   def hlen(key)
 
     mon_synchronize do
