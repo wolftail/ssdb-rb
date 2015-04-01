@@ -309,14 +309,14 @@ class SSDB
   def multi_get(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, args: [keys]
+      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, :args =>  [keys]
     end
   end
 
   def mget(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, args: [keys]
+      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, :args =>  [keys]
     end
   end
 
@@ -657,7 +657,7 @@ class SSDB
     return {} if members.size < 1
     members = members.map { |x| x.to_s }
     mon_synchronize do
-      perform ["multi_hget", key, *members], :multi =>  true, :proc =>  T_MAPSTR, args: [members]
+      perform ["multi_hget", key, *members], :multi =>  true, :proc =>  T_MAPSTR, :args =>  [members]
     end
   end
 
@@ -963,7 +963,7 @@ class SSDB
   def multi_zget(key, members)
     members = Array(members) unless members.is_a?(Array)
     mon_synchronize do
-      perform ["multi_zget", key, *members], :multi =>  true, :proc =>  T_MAPINT, args: [members]
+      perform ["multi_zget", key, *members], :multi =>  true, :proc =>  T_MAPINT, :args =>  [members]
     end
   end
 
