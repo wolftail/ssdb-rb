@@ -61,7 +61,7 @@ class SSDB
   # @return [Hash] info attributes
   def info
     mon_synchronize do
-      perform ["info"], proc: T_INFO
+      perform ["info"], :proc =>  T_INFO
     end
   end
 
@@ -107,7 +107,7 @@ class SSDB
 
   def getbit(key, offset)
     mon_synchronize do
-      perform ["getbit", key, offset], proc: T_INT
+      perform ["getbit", key, offset], :proc =>  T_INT
     end
   end
 
@@ -120,9 +120,9 @@ class SSDB
   def bitcount(key, start = 0, size = nil)
     mon_synchronize do
       if size.nil?
-        perform ["countbit", key, start], proc: T_INT
+        perform ["countbit", key, start], :proc =>  T_INT
       else
-        perform ["countbit", key, start, size], proc: T_INT
+        perform ["countbit", key, start, size], :proc =>  T_INT
       end
     end
   end
@@ -137,32 +137,32 @@ class SSDB
   #   ssdb.set("foo", "val") # => true
   def set(key, value)
     mon_synchronize do
-      perform ["set", key, value], proc: T_BOOL
+      perform ["set", key, value], :proc =>  T_BOOL
     end
   end
 
   def setex(key, ttl, value)
     mon_synchronize do
-      perform ['setx', key, value, ttl], proc: T_BOOL
+      perform ['setx', key, value, ttl], :proc =>  T_BOOL
     end
   end
 
   def setnx(key, value)
     mon_synchronize do
-      perform ['setnx', key, value], proc: T_BOOL
+      perform ['setnx', key, value], :proc =>  T_BOOL
     end
   end
 
 
   def expire(key, ttl)
     mon_synchronize do
-      perform ["expire", key, ttl], proc: T_BOOL
+      perform ["expire", key, ttl], :proc =>  T_BOOL
     end
   end
 
   def ttl(key)
     mon_synchronize do
-      perform ["ttl", key], proc: T_INT
+      perform ["ttl", key], :proc =>  T_INT
     end
   end
 
@@ -176,13 +176,13 @@ class SSDB
   #   ssdb.incr("foo") # => 1
   def incr(key, value = 1)
     mon_synchronize do
-      perform ["incr", key, value], proc: T_INT
+      perform ["incr", key, value], :proc =>  T_INT
     end
   end
 
   def incrby(key, value)
     mon_synchronize do
-      perform ["incr", key, value], proc: T_INT
+      perform ["incr", key, value], :proc =>  T_INT
     end
   end
 
@@ -195,13 +195,13 @@ class SSDB
   #   ssdb.decr("foo") # => -1
   def decr(key, value = 1)
     mon_synchronize do
-      perform ["decr", key, value], proc: T_INT
+      perform ["decr", key, value], :proc =>  T_INT
     end
   end
 
   def decrby(key, value = 1)
     mon_synchronize do
-      perform ["decr", key, value], proc: T_INT
+      perform ["decr", key, value], :proc =>  T_INT
     end
   end
 
@@ -214,7 +214,7 @@ class SSDB
   #   ssdb.exists("foo") # => true
   def exists(key)
     mon_synchronize do
-      perform ["exists", key], proc: T_BOOL
+      perform ["exists", key], :proc =>  T_BOOL
     end
   end
 
@@ -245,7 +245,7 @@ class SSDB
   def keys(start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["keys", start, stop, limit], multi: true
+      perform ["keys", start, stop, limit], :multi =>  true
     end
   end
 
@@ -263,7 +263,7 @@ class SSDB
   def scan(start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["scan", start, stop, limit], multi: true, proc: T_STRSTR
+      perform ["scan", start, stop, limit], :multi =>  true, :proc =>  T_STRSTR
     end
   end
 
@@ -281,7 +281,7 @@ class SSDB
   def rscan(start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["rscan", start, stop, limit], multi: true, proc: T_STRSTR
+      perform ["rscan", start, stop, limit], :multi =>  true, :proc =>  T_STRSTR
     end
   end
 
@@ -294,7 +294,7 @@ class SSDB
   #   # => 4
   def multi_set(pairs)
     mon_synchronize do
-      perform ["multi_set", *pairs.to_a].flatten, proc: T_INT
+      perform ["multi_set", *pairs.to_a].flatten, :proc =>  T_INT
     end
   end
 
@@ -309,14 +309,14 @@ class SSDB
   def multi_get(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_get", *keys], multi: true, proc: T_MAPSTR, args: [keys]
+      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, args: [keys]
     end
   end
 
   def mget(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_get", *keys], multi: true, proc: T_MAPSTR, args: [keys]
+      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_MAPSTR, args: [keys]
     end
   end
 
@@ -331,7 +331,7 @@ class SSDB
   def mapped_multi_get(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_get", *keys], multi: true, proc: T_HASHSTR
+      perform ["multi_get", *keys], :multi =>  true, :proc =>  T_HASHSTR
     end
   end
 
@@ -345,7 +345,7 @@ class SSDB
   def multi_del(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_del", *keys], proc: T_INT
+      perform ["multi_del", *keys], :proc =>  T_INT
     end
   end
 
@@ -360,7 +360,7 @@ class SSDB
   def multi_exists(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_exists", *keys], multi: true, proc: T_VBOOL
+      perform ["multi_exists", *keys], :multi =>  true, :proc =>  T_VBOOL
     end
   end
 
@@ -377,13 +377,13 @@ class SSDB
   #   # => 101
   def zget(key, member)
     mon_synchronize do
-      perform ["zget", key, member], proc: T_CINT
+      perform ["zget", key, member], :proc =>  T_CINT
     end
   end
 
   def zscore(key, member)
     mon_synchronize do
-      perform ["zget", key, member], proc: T_CINT
+      perform ["zget", key, member], :proc =>  T_CINT
     end
   end
 
@@ -398,7 +398,7 @@ class SSDB
   #   # => true
   def zset(key, member, score)
     mon_synchronize do
-      perform ["zset", key, member, score], proc: T_BOOL
+      perform ["zset", key, member, score], :proc =>  T_BOOL
     end
   end
 
@@ -429,7 +429,7 @@ class SSDB
   #   # => 202
   def zincr(key, member, score = 1)
     mon_synchronize do
-      perform ["zincr", key, member, score], proc: T_INT
+      perform ["zincr", key, member, score], :proc =>  T_INT
     end
   end
 
@@ -446,7 +446,7 @@ class SSDB
   #   # => 95
   def zdecr(key, member, score = 1)
     mon_synchronize do
-      perform ["zdecr", key, member, score], proc: T_INT
+      perform ["zdecr", key, member, score], :proc =>  T_INT
     end
   end
 
@@ -460,7 +460,7 @@ class SSDB
   #   # => true
   def zexists(key)
     mon_synchronize do
-      perform ["zexists", key], proc: T_BOOL
+      perform ["zexists", key], :proc =>  T_BOOL
     end
   end
 
@@ -476,19 +476,19 @@ class SSDB
 
   def zcard(key)
     mon_synchronize do
-      perform ["zsize", key], proc: T_INT
+      perform ["zsize", key], :proc =>  T_INT
     end
   end
 
   def zsize(key)
     mon_synchronize do
-      perform ["zsize", key], proc: T_INT
+      perform ["zsize", key], :proc =>  T_INT
     end
   end
 
   def zrem(key, member)
     mon_synchronize do
-      perform ["zdel", key, member], proc: T_BOOL
+      perform ["zdel", key, member], :proc =>  T_BOOL
     end
   end
 
@@ -502,7 +502,7 @@ class SSDB
   #   # => true
   def zdel(key, member)
     mon_synchronize do
-      perform ["zdel", key, member], proc: T_BOOL
+      perform ["zdel", key, member], :proc =>  T_BOOL
     end
   end
 
@@ -510,16 +510,16 @@ class SSDB
   def clear(key)
 
     mon_synchronize do
-      perform(["hclear", key], proc: T_INT) +
-          perform(["zclear", key], proc: T_INT) +
-          perform(["qclear", key], proc: T_INT) +
-          perform(["del", key], proc: T_INT)
+      perform(["hclear", key], :proc =>  T_INT) +
+          perform(["zclear", key], :proc =>  T_INT) +
+          perform(["qclear", key], :proc =>  T_INT) +
+          perform(["del", key], :proc =>  T_INT)
     end
   end
 
   def zclear(key)
     mon_synchronize do
-      perform ["zclear", key], proc: T_INT
+      perform ["zclear", key], :proc =>  T_INT
     end
   end
 
@@ -538,9 +538,9 @@ class SSDB
     limit = stop - start + 1
     mon_synchronize do
       if opts[:withscores]
-        perform ["zrange", key, start, limit], multi: true, proc: T_STRINT
+        perform ["zrange", key, start, limit], :multi =>  true, :proc =>  T_STRINT
       else
-        perform ["zrange", key, start, limit], multi: true, proc: T_ARRAY
+        perform ["zrange", key, start, limit], :multi =>  true, :proc =>  T_ARRAY
       end
     end
   end
@@ -560,22 +560,22 @@ class SSDB
     limit = stop - start + 1
     mon_synchronize do
       if opts[:withscores]
-        perform ["zrrange", key, start, limit], multi: true, proc: T_STRINT
+        perform ["zrrange", key, start, limit], :multi =>  true, :proc =>  T_STRINT
       else
-        perform ["zrrange", key, start, limit], multi: true, proc: T_ARRAY
+        perform ["zrrange", key, start, limit], :multi =>  true, :proc =>  T_ARRAY
       end
     end
   end
 
   def qclear(key)
     mon_synchronize do
-      perform ["qclear", key], proc: T_INT
+      perform ["qclear", key], :proc =>  T_INT
     end
   end
 
   def llen(key)
     mon_synchronize do
-      perform ["qsize", key], proc: T_INT
+      perform ["qsize", key], :proc =>  T_INT
     end
   end
 
@@ -606,7 +606,7 @@ class SSDB
   def lrange(key, start, stop)
 
     mon_synchronize do
-      perform ["qslice", key, start, stop], multi: true
+      perform ["qslice", key, start, stop], :multi =>  true
     end
   end
 
@@ -624,13 +624,13 @@ class SSDB
 
   def qlist name_start, name_end, limit
     mon_synchronize do
-      perform ["qlist", name_start, name_end, limit], proc: T_STRSTR
+      perform ["qlist", name_start, name_end, limit], :proc =>  T_STRSTR
     end
   end
 
   def hdel(key, member)
     mon_synchronize do
-      perform ["hdel", key, member], proc: T_BOOL
+      perform ["hdel", key, member], :proc =>  T_BOOL
     end
   end
 
@@ -657,38 +657,38 @@ class SSDB
     return {} if members.size < 1
     members = members.map { |x| x.to_s }
     mon_synchronize do
-      perform ["multi_hget", key, *members], multi: true, proc: T_MAPSTR, args: [members]
+      perform ["multi_hget", key, *members], :multi =>  true, :proc =>  T_MAPSTR, args: [members]
     end
   end
 
   def hclear(key)
     mon_synchronize do
-      perform ["hclear", key], proc: T_INT
+      perform ["hclear", key], :proc =>  T_INT
     end
   end
 
   def hlen(key)
 
     mon_synchronize do
-      perform ["hsize", key], proc: T_INT
+      perform ["hsize", key], :proc =>  T_INT
     end
   end
 
   def hexists(key, member)
     mon_synchronize do
-      perform ["hexists", key, member], proc: T_BOOL
+      perform ["hexists", key, member], :proc =>  T_BOOL
     end
   end
 
   def hset(key, member, value)
     mon_synchronize do
-      perform ["hset", key, member, value], proc: T_BOOL
+      perform ["hset", key, member, value], :proc =>  T_BOOL
     end
   end
 
   def hgetall(key)
     mon_synchronize do
-      perform ["hgetall", key],multi: true, proc: T_HASHSTR
+      perform ["hgetall", key],:multi =>  true, :proc =>  T_HASHSTR
     end
   end
 
@@ -706,20 +706,20 @@ class SSDB
   def zlist(start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["zlist", start, stop, limit], multi: true
+      perform ["zlist", start, stop, limit], :multi =>  true
     end
   end
 
   def zrlist(start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["zrlist", start, stop, limit], multi: true
+      perform ["zrlist", start, stop, limit], :multi =>  true
     end
   end
 
   def zcount(key, min, max)
     mon_synchronize do
-      perform ["zcount", key, min, max], proc: T_INT
+      perform ["zcount", key, min, max], :proc =>  T_INT
     end
   end
 
@@ -740,7 +740,7 @@ class SSDB
   def zkeys(key, start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["zkeys", key, BLANK, start, stop, limit], multi: true
+      perform ["zkeys", key, BLANK, start, stop, limit], :multi =>  true
     end
   end
 
@@ -760,7 +760,7 @@ class SSDB
   def zscan(key, start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["zscan", key, BLANK, start, stop, limit], multi: true, proc: T_STRINT
+      perform ["zscan", key, BLANK, start, stop, limit], :multi =>  true, :proc =>  T_STRINT
     end
   end
 
@@ -782,7 +782,7 @@ class SSDB
       read_num = 0
       loop do
 
-        page_result = perform ["zrscan", key, key_start, score_start, min, per_page], multi: true, proc: T_STRINT
+        page_result = perform ["zrscan", key, key_start, score_start, min, per_page], :multi =>  true, :proc =>  T_STRINT
 
         if page_result.size == 0
           break
@@ -820,13 +820,13 @@ class SSDB
 
   def zremrangebyrank(key, start, stop)
     mon_synchronize do
-      perform ["zremrangebyrank", key, start, stop], proc: T_INT
+      perform ["zremrangebyrank", key, start, stop], :proc =>  T_INT
     end
   end
 
   def zremrangebyscore(key, min, max)
     mon_synchronize do
-      perform ["zremrangebyscore", key, min, max], proc: T_INT
+      perform ["zremrangebyscore", key, min, max], :proc =>  T_INT
     end
   end
 
@@ -849,7 +849,7 @@ class SSDB
       read_num = 0
       loop do
 
-        page_result = perform ["zscan", key, key_start, score_start, max, per_page], multi: true, proc: T_STRINT
+        page_result = perform ["zscan", key, key_start, score_start, max, per_page], :multi =>  true, :proc =>  T_STRINT
 
         if page_result.size == 0
           break
@@ -901,7 +901,7 @@ class SSDB
   def zrscan(key, start, stop, opts = {})
     limit = opts[:limit] || -1
     mon_synchronize do
-      perform ["zrscan", key, BLANK, start, stop, limit], multi: true, proc: T_STRINT
+      perform ["zrscan", key, BLANK, start, stop, limit], :multi =>  true, :proc =>  T_STRINT
     end
   end
 
@@ -916,7 +916,7 @@ class SSDB
   def multi_zexists(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_zexists", *keys], multi: true, proc: T_VBOOL
+      perform ["multi_zexists", *keys], :multi =>  true, :proc =>  T_VBOOL
     end
   end
 
@@ -933,7 +933,7 @@ class SSDB
   def multi_zsize(keys)
     keys = Array(keys) unless keys.is_a?(Array)
     mon_synchronize do
-      perform ["multi_zsize", *keys], multi: true, proc: T_VINT
+      perform ["multi_zsize", *keys], :multi =>  true, :proc =>  T_VINT
     end
   end
 
@@ -947,7 +947,7 @@ class SSDB
   #   # => 2
   def multi_zset(key, pairs)
     mon_synchronize do
-      perform ["multi_zset", key, *pairs.to_a].flatten, proc: T_INT
+      perform ["multi_zset", key, *pairs.to_a].flatten, :proc =>  T_INT
     end
   end
 
@@ -963,7 +963,7 @@ class SSDB
   def multi_zget(key, members)
     members = Array(members) unless members.is_a?(Array)
     mon_synchronize do
-      perform ["multi_zget", key, *members], multi: true, proc: T_MAPINT, args: [members]
+      perform ["multi_zget", key, *members], :multi =>  true, :proc =>  T_MAPINT, args: [members]
     end
   end
 
@@ -980,7 +980,7 @@ class SSDB
     members = Array(members) unless members.is_a?(Array)
 
     mon_synchronize do
-      perform ["multi_zget", key, *members], multi: true, proc: T_HASHINT
+      perform ["multi_zget", key, *members], :multi =>  true, :proc =>  T_HASHINT
     end
   end
 
@@ -995,7 +995,7 @@ class SSDB
   def multi_zdel(key, members)
     members = Array(members) unless members.is_a?(Array)
     mon_synchronize do
-      perform ["multi_zdel", key, *members], proc: T_INT
+      perform ["multi_zdel", key, *members], :proc =>  T_INT
     end
   end
 
