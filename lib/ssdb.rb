@@ -687,8 +687,11 @@ class SSDB
   end
 
   def hgetall(key)
+    if hlen(key).to_i < 1
+      return {}
+    end  
     mon_synchronize do
-      perform ["hgetall", key],multi: true, proc: T_HASHSTR
+      perform ["hgetall", key], proc: T_HASHSTR
     end
   end
 
