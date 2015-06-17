@@ -1,20 +1,28 @@
 class SSDB
-  T_BOOL    = ->r { r == "1" }
-  T_INT     = ->r { r.to_i }
-  T_CINT    = ->r { r.to_i if r }
-  T_VBOOL   = ->r { r.each_slice(2).map {|_, v| v == "1" }}
-  T_VINT    = ->r { r.each_slice(2).map {|_, v| v.to_i }}
-  T_STRSTR  = ->r { r.each_slice(2).to_a }
-  T_ARRAY  = ->r { r.each_slice(2).map {|v, s| v } }
-  T_STRINT  = ->r { r.each_slice(2).map {|v, s| [v, s.to_i] } }
-  T_MAPINT  = ->r,n { h = {}; r.each_slice(2) {|k, v| h[k] = v }; n.map {|k| h[k].to_i } }
-  T_MAPSTR  = ->r,n { h = {}; r.each_slice(2) {|k, v| h[k] = v }; n.map {|k| h[k] } }
-  T_HASHSTR = ->r { h = {}; r.each_slice(2) {|k, v| h[k] = v }; h }
-  T_HASHINT = ->r { h = {}; r.each_slice(2) {|k, v| h[k] = v.to_i }; h }
+  T_BOOL    = lambda { |r| r == "1" }
+  T_INT     = lambda{| r | r.to_i }
+  T_CINT    = lambda { |r| r.to_i if r }
+  T_VBOOL   = lambda {|r| r.each_slice(2).map {|_, v| v == "1" }}
+  T_VINT    = lambda {|r| r.each_slice(2).map {|_, v| v.to_i }}
+  T_STRSTR  = lambda {|r|r.each_slice(2).to_a }
+  T_ARRAY  = lambda {|r|r.each_slice(2).map {|v, s| v } }
+  T_STRINT  = lambda {|r| r.each_slice(2).map {|v, s| [v, s.to_i] } }
+  T_MAPINT  = lambda do |r, n| 
+      h = {}; r.each_slice(2) { |k, v| h[k] = v }; n.map {|k| h[k].to_i }
+   end
+  T_MAPSTR  = lambda do |r, n| 
+    h = {}; r.each_slice(2) {|k, v| h[k] = v }; n.map {|k| h[k] } 
+  end
+  T_HASHSTR = lambda do | r| 
+   h = {}; r.each_slice(2) {|k, v| h[k] = v }; h 
+ end
+  T_HASHINT = lambda do|r| 
+    h = {}; r.each_slice(2) {|k, v| h[k] = v.to_i }; h 
+ end
   BLANK     = "".freeze
 
   DB_STATS  = ["compactions", "level", "size", "time", "read", "written"].freeze
-  T_INFO    = ->rows {
+  T_INFO    = lambda do  |rows| 
     res = {}
     rows.shift # skip first
     rows.each_slice(2) do |key, val|
@@ -35,5 +43,5 @@ class SSDB
       end
     end
     res
-  }
+  end
 end
