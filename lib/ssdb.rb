@@ -662,6 +662,7 @@ class SSDB
   end
 
   def hmset(key, *members)
+    members.flatten!
     mon_synchronize do
       perform ["multi_hset", key, *members], :proc =>  T_BOOL
     end
