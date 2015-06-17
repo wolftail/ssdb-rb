@@ -661,6 +661,12 @@ class SSDB
     end
   end
 
+  def hmset(key, members)
+    mon_synchronize do
+      perform ["multi_hset", key, *members]
+    end
+  end
+
   def hclear(key)
     mon_synchronize do
       perform ["hclear", key], proc: T_INT
@@ -689,7 +695,7 @@ class SSDB
   def hgetall(key)
     if hlen(key).to_i < 1
       return {}
-    end  
+    end
     mon_synchronize do
       perform ["hgetall", key], proc: T_HASHSTR
     end
